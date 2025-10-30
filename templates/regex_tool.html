@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RegEx Query Tool</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            padding: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        textarea, input[type="text"] {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+        
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        .btn-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .result-section {
+            margin-top: 30px;
+        }
+        
+        .alert {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid;
+        }
+        
+        .alert-error {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #dc2626;
+        }
+        
+        .alert-success {
+            background: #f0fdf4;
+            border-color: #22c55e;
+            color: #16a34a;
+        }
+        
+        .alert-info {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #2563eb;
+        }
+        
+        .matches-container {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 25px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .matches-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .match-count {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        
+        .matches-list {
+            list-style: none;
+        }
+        
+        .match-item {
+            background: white;
+            padding: 12px 18px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            font-family: 'Courier New', monospace;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .footer {
+            background: #f8fafc;
+            padding: 20px;
+            text-align: center;
+            color: #64748b;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        @media (max-width: 768px) {
+            .container { margin: 10px; }
+            .main-content { padding: 20px; }
+            .header h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-search"></i> RegEx Query Tool</h1>
+            <p>Test and validate regular expressions with real-time pattern matching</p>
+        </div>
+        
+        <div class="main-content">
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="text"><i class="fas fa-file-text"></i> Input Text</label>
+                    <div class="input-wrapper">
+                        <textarea 
+                            id="text" 
+                            name="text" 
+                            placeholder="Enter your text here to test against the regex pattern..."
+                            rows="6">{{ text }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pattern"><i class="fas fa-code"></i> Regular Expression Pattern</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            id="pattern" 
+                            name="pattern" 
+                            placeholder="Enter regex pattern (e.g., \d+, [a-zA-Z]+, \w+@\w+\.\w+)" 
+                            value="{{ pattern }}">
+                    </div>
+                </div>
+                
+                <div class="btn-container">
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-play"></i> Find Matches
+                    </button>
+                </div>
+            </form>
+            
+            <div class="result-section">
+                {% if error %}
+                    <div class="alert alert-error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <strong>Error:</strong> {{ error }}
+                    </div>
+                {% endif %}
+                
+                {% if matches %}
+                    <div class="matches-container">
+                        <div class="matches-header">
+                            <i class="fas fa-check-circle" style="color: #22c55e;"></i>
+                            <h3>Pattern Matches</h3>
+                            <span class="match-count">{{ matches|length }}</span>
+                        </div>
+                        <ul class="matches-list">
+                            {% for match in matches %}
+                                <li class="match-item">{{ match }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% elif pattern and not error %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        No matches found for the given pattern.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Built with Django • RegEx Query Tool</p>
+        </div>
+    </div>
+</body>
+</html>
