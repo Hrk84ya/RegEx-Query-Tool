@@ -26,7 +26,7 @@ A professional, web-based regular expression testing tool built with Django. Tes
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/regex-query-tool.git
+   git clone https://github.com/Hrk84ya/RegEx-Query-Tool
    cd regex-query-tool
    ```
 
