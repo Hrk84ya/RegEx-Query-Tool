@@ -174,6 +174,18 @@
             border-left: 4px solid #667eea;
             font-family: 'Courier New', monospace;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .match-text {
+            font-weight: 600;
+        }
+        
+        .match-pos {
+            font-size: 0.85rem;
+            color: #64748b;
         }
         
         .footer {
@@ -240,20 +252,23 @@
                     </div>
                 {% endif %}
                 
-                {% if matches %}
+                {% if match_details %}
                     <div class="matches-container">
                         <div class="matches-header">
                             <i class="fas fa-check-circle" style="color: #22c55e;"></i>
                             <h3>Pattern Matches</h3>
-                            <span class="match-count">{{ matches|length }}</span>
+                            <span class="match-count">{{ match_details|length }}</span>
                         </div>
                         <ul class="matches-list">
-                            {% for match in matches %}
-                                <li class="match-item">{{ match }}</li>
+                            {% for m in match_details %}
+                                <li class="match-item">
+                                    <span class="match-text">{{ m.text }}</span>
+                                    <span class="match-pos">position {{ m.start }}–{{ m.end }}</span>
+                                </li>
                             {% endfor %}
                         </ul>
                     </div>
-                {% elif pattern and not error %}
+                {% elif request.method == 'POST' and pattern and not error %}
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
                         No matches found for the given pattern.
