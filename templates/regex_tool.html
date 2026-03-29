@@ -4,282 +4,472 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RegEx Query Tool</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #111110;
+            --bg-secondary: #1a1918;
+            --bg-card: #211f1d;
+            --bg-input: #141312;
+            --border-color: #2e2b28;
+            --border-focus: #e08a2e;
+            --text-primary: #ede8e0;
+            --text-secondary: #9a9488;
+            --text-muted: #5e5a52;
+            --accent: #e08a2e;
+            --accent-hover: #eda044;
+            --accent-glow: rgba(224, 138, 46, 0.25);
+            --success: #5cb87a;
+            --error: #d95757;
+            --info: #5a9fd4;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
             min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #2c3e50, #34495e);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            padding: 24px;
         }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 600px 400px at 20% 20%, rgba(224, 138, 46, 0.06), transparent),
+                radial-gradient(ellipse 500px 300px at 80% 80%, rgba(214, 100, 30, 0.04), transparent);
+            pointer-events: none;
+            z-index: 0;
         }
-        
-        .main-content {
-            padding: 40px;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-        }
-        
-        .form-group label {
-            display: block;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            font-size: 1.1rem;
-        }
-        
-        .input-wrapper {
+
+        .app {
             position: relative;
-        }
-        
-        textarea, input[type="text"] {
+            z-index: 1;
             width: 100%;
-            padding: 15px 20px;
-            border: 2px solid #e1e8ed;
+            max-width: 720px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        /* ── Header ── */
+        .header {
+            padding: 32px 32px 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            font-size: 1.2rem;
+            color: #fff;
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 2px;
+        }
+
+        /* ── Form ── */
+        .form-area {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding: 0 32px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .form-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-group label i {
+            color: var(--accent);
+            font-size: 0.75rem;
+        }
+
+        textarea, .pattern-input-wrap input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-color);
             border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            font-family: 'Courier New', monospace;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
-        
-        textarea:focus, input[type="text"]:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        
+
         textarea {
+            padding: 14px 16px;
             resize: vertical;
-            min-height: 120px;
+            min-height: 160px;
         }
-        
-        .btn-container {
-            text-align: center;
-            margin: 30px 0;
+
+        textarea:focus, .pattern-input-wrap input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-glow);
         }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px 40px;
+
+        textarea::placeholder, .pattern-input-wrap input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .pattern-input-wrap {
+            display: flex;
+            align-items: center;
+            background: var(--bg-input);
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0 14px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .pattern-input-wrap:focus-within {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        .pattern-input-wrap input {
             border: none;
-            border-radius: 50px;
-            font-size: 1.1rem;
+            background: transparent;
+            padding: 12px 8px;
+            flex: 1;
+        }
+
+        .pattern-input-wrap input:focus {
+            box-shadow: none;
+            border-color: transparent;
+        }
+
+        .pattern-slash {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            user-select: none;
+        }
+
+        .btn-submit {
+            align-self: flex-start;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: background 0.2s, transform 0.1s, box-shadow 0.2s;
+            box-shadow: 0 2px 12px var(--accent-glow);
         }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+
+        .btn-submit:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 20px var(--accent-glow);
         }
-        
-        .result-section {
-            margin-top: 30px;
+
+        .btn-submit:active {
+            transform: scale(0.98);
         }
-        
+
+        /* ── Results ── */
+        .results-area {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            padding: 0 32px 32px;
+        }
+
         .alert {
-            padding: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 16px 20px;
             border-radius: 10px;
-            margin: 20px 0;
-            border-left: 5px solid;
+            border: 1px solid;
         }
-        
+
         .alert-error {
-            background: #fef2f2;
-            border-color: #ef4444;
-            color: #dc2626;
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.25);
         }
-        
-        .alert-success {
-            background: #f0fdf4;
-            border-color: #22c55e;
-            color: #16a34a;
-        }
-        
+
+        .alert-error .alert-icon { color: var(--error); }
+
         .alert-info {
-            background: #eff6ff;
-            border-color: #3b82f6;
-            color: #2563eb;
+            background: rgba(59, 130, 246, 0.08);
+            border-color: rgba(59, 130, 246, 0.25);
         }
-        
-        .matches-container {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 25px;
-            border: 2px solid #e2e8f0;
+
+        .alert-info .alert-icon { color: var(--info); }
+
+        .alert-icon { font-size: 1.1rem; margin-top: 1px; }
+
+        .alert-body {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
         }
-        
+
+        .alert-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .alert-msg {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* ── Matches Panel ── */
+        .matches-panel {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
         .matches-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-        
-        .match-count {
-            background: #667eea;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        
-        .matches-list {
-            list-style: none;
-        }
-        
-        .match-item {
-            background: white;
-            padding: 12px 18px;
-            margin: 8px 0;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-            font-family: 'Courier New', monospace;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            display: flex;
             justify-content: space-between;
+            padding: 14px 20px;
+            background: rgba(224, 138, 46, 0.06);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .matches-title {
+            display: flex;
             align-items: center;
-        }
-        
-        .match-text {
+            gap: 10px;
             font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--accent);
         }
-        
-        .match-pos {
+
+        .match-badge {
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+
+        .matches-list {
+            max-height: 360px;
+            overflow-y: auto;
+        }
+
+        .match-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            font-family: 'JetBrains Mono', monospace;
             font-size: 0.85rem;
-            color: #64748b;
+            transition: background 0.15s;
         }
-        
+
+        .match-row:last-child { border-bottom: none; }
+
+        .match-row:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .match-index {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            min-width: 28px;
+        }
+
+        .match-value {
+            flex: 1;
+            color: var(--success);
+            background: rgba(92, 184, 122, 0.08);
+            padding: 3px 10px;
+            border-radius: 6px;
+            word-break: break-all;
+        }
+
+        .match-range {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        /* ── Footer ── */
         .footer {
-            background: #f8fafc;
-            padding: 20px;
+            padding: 16px 32px;
             text-align: center;
-            color: #64748b;
-            border-top: 1px solid #e2e8f0;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-top: 1px solid rgba(255,255,255,0.04);
+            border-radius: 0 0 16px 16px;
         }
-        
-        @media (max-width: 768px) {
-            .container { margin: 10px; }
-            .main-content { padding: 20px; }
-            .header h1 { font-size: 2rem; }
+
+        /* ── Scrollbar ── */
+        .matches-list::-webkit-scrollbar { width: 6px; }
+        .matches-list::-webkit-scrollbar-track { background: transparent; }
+        .matches-list::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .header, .form-area, .results-area, .footer { padding-left: 20px; padding-right: 20px; }
+            .header h1 { font-size: 1.25rem; }
+            .btn-submit { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="app" role="main">
         <div class="header">
-            <h1><i class="fas fa-search"></i> RegEx Query Tool</h1>
-            <p>Test and validate regular expressions with real-time pattern matching</p>
-        </div>
-        
-        <div class="main-content">
-            <form method="post">
-                {% csrf_token %}
-                
-                <div class="form-group">
-                    <label for="text"><i class="fas fa-file-text"></i> Input Text</label>
-                    <div class="input-wrapper">
-                        <textarea 
-                            id="text" 
-                            name="text" 
-                            placeholder="Enter your text here to test against the regex pattern..."
-                            rows="6">{{ text }}</textarea>
-                    </div>
+            <div class="logo">
+                <div class="logo-icon"><i class="fas fa-terminal"></i></div>
+                <div>
+                    <h1>RegEx Query Tool</h1>
+                    <p class="subtitle">Test and validate regular expressions instantly</p>
                 </div>
-                
-                <div class="form-group">
-                    <label for="pattern"><i class="fas fa-code"></i> Regular Expression Pattern</label>
-                    <div class="input-wrapper">
-                        <input 
-                            type="text" 
-                            id="pattern" 
-                            name="pattern" 
-                            placeholder="Enter regex pattern (e.g., \d+, [a-zA-Z]+, \w+@\w+\.\w+)" 
-                            value="{{ pattern }}">
-                    </div>
-                </div>
-                
-                <div class="btn-container">
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-play"></i> Find Matches
-                    </button>
-                </div>
-            </form>
-            
-            <div class="result-section">
-                {% if error %}
-                    <div class="alert alert-error">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <strong>Error:</strong> {{ error }}
-                    </div>
-                {% endif %}
-                
-                {% if match_details %}
-                    <div class="matches-container">
-                        <div class="matches-header">
-                            <i class="fas fa-check-circle" style="color: #22c55e;"></i>
-                            <h3>Pattern Matches</h3>
-                            <span class="match-count">{{ match_details|length }}</span>
-                        </div>
-                        <ul class="matches-list">
-                            {% for m in match_details %}
-                                <li class="match-item">
-                                    <span class="match-text">{{ m.text }}</span>
-                                    <span class="match-pos">position {{ m.start }}–{{ m.end }}</span>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                {% elif request.method == 'POST' and pattern and not error %}
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        No matches found for the given pattern.
-                    </div>
-                {% endif %}
             </div>
         </div>
-        
-        <div class="footer">
-            <p>Built with Django • RegEx Query Tool</p>
+
+        <form method="post" class="form-area">
+            {% csrf_token %}
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="text">
+                        <i class="fas fa-align-left"></i>
+                        Input Text
+                    </label>
+                    <textarea
+                        id="text"
+                        name="text"
+                        placeholder="Paste or type the text you want to search through..."
+                        rows="8"
+                        spellcheck="false">{{ text }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="pattern">
+                        <i class="fas fa-code"></i>
+                        Regex Pattern
+                    </label>
+                    <div class="pattern-input-wrap">
+                        <span class="pattern-slash">/</span>
+                        <input
+                            type="text"
+                            id="pattern"
+                            name="pattern"
+                            placeholder="\d+  or  [a-zA-Z]+  or  \w+@\w+\.\w+"
+                            value="{{ pattern }}"
+                            spellcheck="false"
+                            autocomplete="off">
+                        <span class="pattern-slash">/g</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-magnifying-glass"></i>
+                Find Matches
+            </button>
+        </form>
+
+        <div class="results-area">
+            {% if error %}
+                <div class="alert alert-error">
+                    <div class="alert-icon"><i class="fas fa-circle-xmark"></i></div>
+                    <div class="alert-body">
+                        <span class="alert-title">Invalid Pattern</span>
+                        <span class="alert-msg">{{ error }}</span>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if match_details %}
+                <div class="matches-panel">
+                    <div class="matches-header">
+                        <div class="matches-title">
+                            <i class="fas fa-check-double"></i>
+                            Matches Found
+                        </div>
+                        <span class="match-badge">{{ match_details|length }}</span>
+                    </div>
+                    <div class="matches-list">
+                        {% for m in match_details %}
+                        <div class="match-row">
+                            <span class="match-index">#{{ forloop.counter }}</span>
+                            <code class="match-value">{{ m.text }}</code>
+                            <span class="match-range">{{ m.start }}:{{ m.end }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% elif request.method == 'POST' and pattern and not error %}
+                <div class="alert alert-info">
+                    <div class="alert-icon"><i class="fas fa-circle-info"></i></div>
+                    <div class="alert-body">
+                        <span class="alert-title">No Matches</span>
+                        <span class="alert-msg">The pattern didn't match anything in the provided text.</span>
+                    </div>
+                </div>
+            {% endif %}
         </div>
+
+        <footer class="footer">
+            <span>Built with Django &middot; Python re module</span>
+        </footer>
     </div>
-</body>
-</html>
